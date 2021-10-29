@@ -124,19 +124,29 @@ void setupSinricPro()
   SinricPro.restoreDeviceStates(true); // get latest known deviceState from server (is device turned on?)
 }
 
+void climateRoutine() {
+    byte h1 = dhtA.readHumidity();            // f1 and h1 are celsius and humidity readings
+    // byte t1 = dhtA.readTemperature(true);  // for temperature in farenheits
+    byte t1 = dhtA.readTemperature();         // from DHT/A
+    Blynk.virtualWrite(V0, t1);               //  Set Virtual Pin 0 frequency to PUSH in Blynk app
+    Blynk.virtualWrite(V1, h1);               //  Set Virtual Pin 1 frequency to PUSH in Blynk app
+}
+
 void setup()
 {
   pinMode(RELAY_PIN, OUTPUT); // set relay-pin to output mode
   Serial.begin(BAUD_RATE);
   Serial.printf("\r\n\r\n");
   dhtA.begin();
-
+  Blynk.begin(auth, WIFI_SSID, WIFI_PASS); 
   setupWiFi();
   setupSinricPro();
 }
 
 void loop()
 {
+  Blynk.run();
   SinricPro.handle(); // handle SinricPro commands
   handleTemperaturesensor();
+  climateRoutine(); 
 }
